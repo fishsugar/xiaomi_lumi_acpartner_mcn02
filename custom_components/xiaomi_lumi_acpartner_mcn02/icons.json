@@ -1,0 +1,12 @@
+{
+  "entity": {
+    "select": {
+      "ac_mode": {
+        "state": {
+          "0": "mdi:power-plug",
+          "1": "mdi:power-plug-off"
+        }
+      }
+    }
+  }
+}

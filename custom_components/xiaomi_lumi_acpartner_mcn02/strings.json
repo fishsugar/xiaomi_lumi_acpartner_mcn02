@@ -1,0 +1,75 @@
+{
+  "config": {
+    "flow_title": "{model} ({host})",
+    "step": {
+      "user": {
+        "data": {
+          "host": "[%key:common::config_flow::data::ip%]",
+          "token": "[%key:common::config_flow::data::api_token%]"
+        },
+        "description": "You will need the 32 character API token, see {retrieving_token_url} for instructions. Please note that this API token is different from the key used by the Xiaomi Aqara integration."
+      },
+      "discovery_auth": {
+        "data": {
+          "device_id": "Device ID",
+          "host": "[%key:common::config_flow::data::ip%]",
+          "token": "[%key:common::config_flow::data::api_token%]"
+        },
+        "description": "[%key:component::xiaomi_lumi_acpartner_mcn02::config::step::user::description%]"
+      }
+    },
+    "error": {
+      "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
+      "invalid_auth": "[%key:common::config_flow::error::invalid_auth%]",
+      "unknown": "[%key:common::config_flow::error::unknown%]"
+    },
+    "abort": {
+      "already_configured": "[%key:common::config_flow::abort::already_configured_device%]"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "min_temp": "Min temperature",
+          "max_temp": "Max temperature"
+        }
+      }
+    }
+  },
+  "entity": {
+    "climate": {
+      "ac": {
+        "name": "Air Conditioner"
+      }
+    },
+    "binary_sensor": {
+      "match_state": {
+        "name": "Match State",
+        "state": {
+          "on": "Matching",
+          "off": "Out of matching"
+        }
+      }
+    },
+    "select": {
+      "ac_mode": {
+        "name": "AC Work Mode",
+        "state": {
+          "0": "With outlet",
+          "1": "Without outlet"
+        }
+      }
+    },
+    "switch": {
+      "en_nnlight": {
+        "name": "en_nnlight"
+      }
+    }
+  },
+  "device": {
+    "air_conditioning_companion_mcn02": {
+      "name": "Mi Smart Air Conditioner Controller 2"
+    }
+  }
+}
