@@ -6,10 +6,12 @@ import logging
 from typing import override
 
 from miio.airconditioningcompanionMCN import AirConditioningCompanionMcn02
+from miio.exceptions import DeviceException
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
+from homeassistant.exceptions import ConfigEntryError, ConfigEntryNotReady
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .client import Mcn02Client
 
@@ -52,8 +54,18 @@ class Mcn02Coordinator(DataUpdateCoordinator[None]):
 
     @override
     async def _async_setup(self) -> None:
-        await self.hass.async_add_executor_job(self._device.info)
+        try:
+            await self.hass.async_add_executor_job(self._device.info)
+        except DeviceException as e:
+            if str(e).startswith("Unable to discover the device "):
+                raise ConfigEntryNotReady from e
+            raise ConfigEntryError from e
 
     @override
     async def _async_update_data(self) -> None:
-        await self.hass.async_add_executor_job(self._client.update_status, True)
+        try:
+            await self.hass.async_add_executor_job(self._client.update_status, True)
+        except DeviceException as e:
+            if str(e).startswith("Unable to discover the device "):
+                raise ConfigEntryNotReady from e
+            raise UpdateFailed from e

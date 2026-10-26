@@ -208,7 +208,13 @@ class XiaomiMcnConfigFlow(ConfigFlow, domain=DOMAIN):
         """Handle dhcp discovery."""
 
         device = AirConditioningCompanionMcn02(discovery_info.ip)
-        await self.hass.async_add_executor_job(device.send_handshake)
+        try:
+            await self.hass.async_add_executor_job(device.send_handshake)
+        except DeviceException as e:
+            if str(e).startswith("Unable to discover the device "):
+                return self.async_abort(reason="no_devices_found")
+            return self.async_abort(reason="cannot_connect")
+
         await self.async_set_unique_id(_format_device_id(device.device_id))
         self._abort_if_unique_id_configured()
 
