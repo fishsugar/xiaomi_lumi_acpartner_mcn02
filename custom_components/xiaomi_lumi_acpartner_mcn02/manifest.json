@@ -1,19 +1,16 @@
 {
   "domain": "xiaomi_lumi_acpartner_mcn02",
   "name": "Xiaomi Mi Smart Air Conditioner Controller 2",
-  "version": "0.0.1",
-  "codeowners": [
-    "@fishsugar"
-  ],
+  "codeowners": ["@fishsugar"],
   "config_flow": true,
-  "integration_type": "device",
-  "iot_class": "local_polling",
-  "requirements": [
-    "python-miio>=0.5.12"
-  ],
   "dhcp": [
     {
       "hostname": "lumi-acpartner-mcn02_miap????"
     }
-  ]
+  ],
+  "integration_type": "device",
+  "iot_class": "local_polling",
+  "quality_scale": "bronze",
+  "requirements": ["python-miio>=0.5.12"],
+  "version": "0.0.1"
 }

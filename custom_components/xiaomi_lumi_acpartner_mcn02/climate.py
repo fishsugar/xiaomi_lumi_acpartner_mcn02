@@ -1,7 +1,7 @@
 """climate platform."""
 
 from collections.abc import Mapping
-from typing import Any
+from typing import Any, override
 
 from miio.airconditioningcompanionMCN import FanSpeed, OperationMode, SwingMode
 
@@ -106,16 +106,19 @@ class _Entity(ClimateEntity, Mcn02Entity):
 
         self._update_with_coordinator()
 
+    @override
     def turn_on(self) -> None:
         """Turn the miio device on."""
         self._device.on()
         self._client.update_status()
 
+    @override
     def turn_off(self) -> None:
         """Turn the miio device off."""
         self._device.off()
         self._client.update_status()
 
+    @override
     def _handle_coordinator_update(self) -> None:
         self._update_with_coordinator()
         super()._handle_coordinator_update()
@@ -143,11 +146,13 @@ class _Entity(ClimateEntity, Mcn02Entity):
         )
 
     @property
+    @override
     def target_temperature(self) -> float | None:
         """Get target temperature."""
         return self._client.target_temperature
 
     @property
+    @override
     def swing_mode(self) -> str | None:
         """Return the swing setting."""
         return (
@@ -157,6 +162,7 @@ class _Entity(ClimateEntity, Mcn02Entity):
         )
 
     @property
+    @override
     def supported_features(self) -> ClimateEntityFeature:
         """Return the list of supported features."""
         f = _SUPPORTED_FEATURES_ALL
@@ -164,6 +170,7 @@ class _Entity(ClimateEntity, Mcn02Entity):
             f &= ~ClimateEntityFeature.SWING_MODE
         return f
 
+    @override
     async def async_set_temperature(self, **kwargs: Any) -> None:
         """Set target temperature."""
         await self.hass.async_add_executor_job(
@@ -171,6 +178,7 @@ class _Entity(ClimateEntity, Mcn02Entity):
         )
         await self.coordinator.async_refresh()
 
+    @override
     async def async_set_swing_mode(self, swing_mode: str) -> None:
         """Set new target swing operation."""
         value = {
@@ -180,12 +188,14 @@ class _Entity(ClimateEntity, Mcn02Entity):
         await self._async_send("set_ver_swing", [value])
         await self.coordinator.async_refresh()
 
+    @override
     async def async_set_fan_mode(self, fan_mode: str) -> None:
         """Set the fan mode."""
         value = _FAN_MODE_TO_DEVICE[fan_mode].value
         await self._async_send("set_fan_level", [value])
         await self.coordinator.async_refresh()
 
+    @override
     async def async_set_hvac_mode(self, hvac_mode: HVACMode) -> None:
         """Set new target hvac mode."""
         if hvac_mode == HVACMode.OFF:
@@ -203,9 +213,10 @@ class _Entity(ClimateEntity, Mcn02Entity):
         await self.coordinator.async_refresh()
 
     @property
+    @override
     def extra_state_attributes(self) -> Mapping[str, Any] | None:
         """Return entity specific state attributes."""
-        result = {}
+        result: dict[str, Any] = {}
         c = self._client
         if c.ac_model is not None:
             result[ATTR_AC_MODEL] = c.ac_model

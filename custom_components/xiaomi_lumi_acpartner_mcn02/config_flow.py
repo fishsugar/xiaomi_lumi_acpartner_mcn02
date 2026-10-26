@@ -1,17 +1,15 @@
 """Config flow for the integration."""
 
-from __future__ import annotations
-
 import logging
 import socket
-from typing import Any
+from typing import Any, override
 
 from miio.airconditioningcompanionMCN import (
     MODEL_ACPARTNER_MCN02,
     AirConditioningCompanionMcn02,
 )
 from miio.exceptions import DeviceException
-import voluptuous as vol
+import probatio
 
 from homeassistant.config_entries import (
     ConfigEntry,
@@ -49,28 +47,30 @@ RETRIEVING_TOKEN_URL = (
 
 _LOGGER = logging.getLogger(__name__)
 
-STEP_USER_DATA_SCHEMA = vol.Schema(
+STEP_USER_DATA_SCHEMA = probatio.Schema(
     {
-        vol.Required(CONF_HOST): str,
-        vol.Required(CONF_TOKEN): vol.All(str, vol.Length(32, 32)),
+        probatio.Required(CONF_HOST): str,
+        probatio.Required(CONF_TOKEN): probatio.All(str, probatio.Length(32, 32)),
     }
 )
-STEP_AUTH_DATA_SCHEMA = vol.Schema(
+STEP_AUTH_DATA_SCHEMA = probatio.Schema(
     {
-        vol.Optional(CONF_DEVICE_ID): TextSelector(TextSelectorConfig(read_only=True)),
-        vol.Optional(CONF_HOST): TextSelector(TextSelectorConfig(read_only=True)),
-        vol.Required(CONF_TOKEN): vol.All(str, vol.Length(32, 32)),
+        probatio.Optional(CONF_DEVICE_ID): TextSelector(
+            TextSelectorConfig(read_only=True)
+        ),
+        probatio.Optional(CONF_HOST): TextSelector(TextSelectorConfig(read_only=True)),
+        probatio.Required(CONF_TOKEN): probatio.All(str, probatio.Length(32, 32)),
     }
 )
-OPTIONS_SCHEMA = vol.Schema(
+OPTIONS_SCHEMA = probatio.Schema(
     {
-        vol.Optional(CONF_MIN_TEMP, default=DEFAULT_MIN_TEMP): NumberSelector(
+        probatio.Optional(CONF_MIN_TEMP, default=DEFAULT_MIN_TEMP): NumberSelector(
             NumberSelectorConfig(
                 mode=NumberSelectorMode.BOX,
                 unit_of_measurement="°C",
             )
         ),
-        vol.Optional(CONF_MAX_TEMP, default=DEFAULT_MAX_TEMP): NumberSelector(
+        probatio.Optional(CONF_MAX_TEMP, default=DEFAULT_MAX_TEMP): NumberSelector(
             NumberSelectorConfig(
                 mode=NumberSelectorMode.BOX,
                 unit_of_measurement=UnitOfTemperature.CELSIUS,
@@ -83,7 +83,7 @@ OPTIONS_FLOW = {
 }
 
 
-async def validate_input(hass: HomeAssistant, data: dict[str, Any]):
+async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str, str]:
     """Validate the user input allows us to connect.
 
     Data has the keys from STEP_USER_DATA_SCHEMA with values provided by the user.
@@ -102,15 +102,15 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]):
     return {"device_id": _format_device_id(device.device_id)}
 
 
-def _format_device_id(device_id):
+def _format_device_id(device_id: int) -> str:
     return f"{device_id:08X}"
 
 
-def _authenticate(ip: str, token: str):
+def _authenticate(ip: str, token: str) -> AirConditioningCompanionMcn02:
     device = AirConditioningCompanionMcn02(ip, token)
     device.retry_count = 0
     try:
-        device.send_handshake()
+        device.send_handshake()  # type: ignore[no-untyped-call]
     except DeviceException as ex:
         raise CannotConnect from ex
     except socket.gaierror as ex:
@@ -133,12 +133,14 @@ class XiaomiMcnConfigFlow(ConfigFlow, domain=DOMAIN):
 
     @staticmethod
     @callback
+    @override
     def async_get_options_flow(
         config_entry: ConfigEntry,
     ) -> OptionsFlow:
         """Create the options flow."""
         return SchemaOptionsFlowHandlerWithReload(config_entry, OPTIONS_FLOW)
 
+    @override
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
@@ -199,6 +201,7 @@ class XiaomiMcnConfigFlow(ConfigFlow, domain=DOMAIN):
             },
         )
 
+    @override
     async def async_step_dhcp(
         self, discovery_info: DhcpServiceInfo
     ) -> ConfigFlowResult:

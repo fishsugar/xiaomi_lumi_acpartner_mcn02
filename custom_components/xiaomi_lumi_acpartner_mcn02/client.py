@@ -37,7 +37,7 @@ class Mcn02Client:
     def __init__(self, device: AirConditioningCompanionMcn02) -> None:
         self._device = device
 
-    def update_status(self, full_update=False) -> None:
+    def update_status(self, full_update: bool = False) -> None:
         """Update the status of the device."""
 
         if full_update:
@@ -46,7 +46,7 @@ class Mcn02Client:
             except DeviceException:
                 self._ac_model = None
 
-        values = self._device.get_properties(list(_RawProperties._fields))
+        values = self._device.get_properties(list(_RawProperties._fields))  # type: ignore[no-untyped-call]
         self._props = _RawProperties(*values)
 
         if not self._should_use_saved_temperature or self._target_temperature is None:
@@ -55,7 +55,7 @@ class Mcn02Client:
 
     @property
     def _should_use_saved_temperature(self) -> bool:
-        return not self.is_on or self.mode == OperationMode.Ventilate
+        return not self.is_on or self.mode is OperationMode.Ventilate
 
     def set_target_temperature(self, value: int) -> None:
         self.update_status()
@@ -72,14 +72,13 @@ class Mcn02Client:
     def is_on(self) -> bool:
         if self._props.power == "on":
             return True
-        elif self._props.power == "off":
+        if self._props.power == "off":
             return False
-        else:
-            raise ValueError("Invalid status")
+        raise ValueError("Invalid status")
 
     @property
     def swing_supported(self) -> bool:
-        return self._props.ver_swing != "unsupport"
+        return self._props.ver_swing != "unsupport"  # codespell:ignore unsupport
 
     @property
     def mode(self) -> OperationMode:
@@ -105,7 +104,7 @@ class Mcn02Client:
     def ac_mode(self) -> int | None:
         return self._props.ac_mode if self._props.ac_mode != "" else None
 
-    def set_ac_mode(self, value: int):
+    def set_ac_mode(self, value: int) -> None:
         self._set_prop("ac_mode", value)
 
     @property
@@ -116,7 +115,7 @@ class Mcn02Client:
     def en_nnlight(self) -> int | None:
         return self._props.en_nnlight if self._props.en_nnlight != "" else None
 
-    def set_en_nnlight(self, value: int):
+    def set_en_nnlight(self, value: int) -> None:
         self._set_prop("en_nnlight", value)
 
     @property
@@ -143,5 +142,5 @@ class Mcn02Client:
     def get_quick_cool_func(self) -> Any:
         return self._device.send("get_quick_cool_func")
 
-    def _set_prop(self, prop: str, value: Any) -> bool:
-        return self._device.send("set_prop", {prop: value})
+    def _set_prop(self, prop: str, value: Any) -> None:
+        self._device.send("set_prop", {prop: value})

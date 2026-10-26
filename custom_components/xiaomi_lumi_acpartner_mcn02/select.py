@@ -1,10 +1,9 @@
 """select platform."""
 
-from __future__ import annotations
-
 from collections.abc import Callable
 from dataclasses import dataclass
 import logging
+from typing import override
 
 from homeassistant.components.select import SelectEntity, SelectEntityDescription
 from homeassistant.const import EntityCategory
@@ -33,9 +32,9 @@ _SENSOR_DESCRIPTIONS: tuple[_EntityDescription, ...] = (
         has_entity_name=True,
         entity_category=EntityCategory.CONFIG,
         options=["0", "1"],
-        value_fn=lambda client: str(client.ac_mode)
-        if client.ac_mode is not None
-        else None,
+        value_fn=lambda client: (
+            str(client.ac_mode) if client.ac_mode is not None else None
+        ),
         setter_fn=lambda client, value: client.set_ac_mode(int(value)),
     ),
 )
@@ -56,6 +55,8 @@ async def async_setup_entry(
 class _Entity(SelectEntity, Mcn02Entity):
     """Representation of a select entity."""
 
+    _attr_has_entity_name = True
+
     entity_description: _EntityDescription
 
     def __init__(
@@ -71,10 +72,12 @@ class _Entity(SelectEntity, Mcn02Entity):
         self._attr_unique_id = f"{self._device_id}.{self.entity_description.key}"
 
     @property
+    @override
     def current_option(self) -> str | None:
         """Return the selected entity option to represent the entity state."""
         return self.entity_description.value_fn(self._client)
 
+    @override
     async def async_select_option(self, option: str) -> None:
         """Change the selected option."""
         await self.hass.async_add_executor_job(

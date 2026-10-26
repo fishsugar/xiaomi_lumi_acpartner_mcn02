@@ -1,18 +1,13 @@
 """The xiaomi_lumi_acpartner_mcn02 integration."""
 
-from __future__ import annotations
-
-from dataclasses import dataclass
-
 from miio.airconditioningcompanionMCN import AirConditioningCompanionMcn02
 
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, CONF_TOKEN, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 
 from .client import Mcn02Client
-from .coordinator import Mcn02Coordinator
+from .coordinator import Mcn02ConfigEntry, Mcn02Coordinator, McnRuntimeData
 
 PLATFORMS: list[Platform] = [
     Platform.BINARY_SENSOR,
@@ -21,18 +16,6 @@ PLATFORMS: list[Platform] = [
     Platform.SENSOR,
     Platform.SWITCH,
 ]
-
-
-@dataclass
-class McnRuntimeData:
-    "Runtime data for the integration."
-
-    device: AirConditioningCompanionMcn02
-    coordinator: Mcn02Coordinator
-    client: Mcn02Client
-
-
-type Mcn02ConfigEntry = ConfigEntry[McnRuntimeData]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: Mcn02ConfigEntry) -> bool:

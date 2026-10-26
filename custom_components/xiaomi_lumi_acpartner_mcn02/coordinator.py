@@ -1,13 +1,13 @@
 """DataUpdateCoordinator for the integration."""
 
+from dataclasses import dataclass
 from datetime import timedelta
 import logging
+from typing import override
 
-from miio.airconditioningcompanionMCN import (
-    AirConditioningCompanionMcn02,
-    AirConditioningCompanionStatus,
-)
+from miio.airconditioningcompanionMCN import AirConditioningCompanionMcn02
 
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
@@ -16,13 +16,25 @@ from .client import Mcn02Client
 _LOGGER = logging.getLogger(__name__)
 
 
-class Mcn02Coordinator(DataUpdateCoordinator[AirConditioningCompanionStatus]):
+type Mcn02ConfigEntry = ConfigEntry[McnRuntimeData]
+
+
+@dataclass
+class McnRuntimeData:
+    "Runtime data for the integration."
+
+    device: AirConditioningCompanionMcn02
+    coordinator: Mcn02Coordinator
+    client: Mcn02Client
+
+
+class Mcn02Coordinator(DataUpdateCoordinator[None]):
     """Mcn02 coordinator."""
 
     def __init__(
         self,
         hass: HomeAssistant,
-        config_entry,
+        config_entry: Mcn02ConfigEntry,
         device: AirConditioningCompanionMcn02,
         client: Mcn02Client,
     ) -> None:
@@ -38,8 +50,10 @@ class Mcn02Coordinator(DataUpdateCoordinator[AirConditioningCompanionStatus]):
         self._device = device
         self._client = client
 
-    async def _async_setup(self):
+    @override
+    async def _async_setup(self) -> None:
         await self.hass.async_add_executor_job(self._device.info)
 
-    async def _async_update_data(self):
+    @override
+    async def _async_update_data(self) -> None:
         await self.hass.async_add_executor_job(self._client.update_status, True)

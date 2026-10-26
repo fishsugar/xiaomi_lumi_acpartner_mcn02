@@ -1,11 +1,9 @@
 """switch platform."""
 
-from __future__ import annotations
-
 from collections.abc import Callable
 from dataclasses import dataclass
 import logging
-from typing import Any
+from typing import Any, override
 
 from homeassistant.components.switch import SwitchEntity, SwitchEntityDescription
 from homeassistant.const import EntityCategory
@@ -33,9 +31,9 @@ _SENSOR_DESCRIPTIONS: tuple[_EntityDescription, ...] = (
         translation_key="en_nnlight",
         has_entity_name=True,
         entity_category=EntityCategory.CONFIG,
-        value_fn=lambda client: client.en_nnlight == 1
-        if client.en_nnlight is not None
-        else None,
+        value_fn=lambda client: (
+            client.en_nnlight == 1 if client.en_nnlight is not None else None
+        ),
         setter_fn=lambda client, value: client.set_en_nnlight(1 if value else 0),
     ),
 )
@@ -56,6 +54,8 @@ async def async_setup_entry(
 class _Entity(SwitchEntity, Mcn02Entity):
     """Representation of a switch entity."""
 
+    _attr_has_entity_name = True
+
     entity_description: _EntityDescription
 
     def __init__(
@@ -71,10 +71,12 @@ class _Entity(SwitchEntity, Mcn02Entity):
         self._attr_unique_id = f"{self._device_id}.{self.entity_description.key}"
 
     @property
+    @override
     def is_on(self) -> bool | None:
         """Return True if entity is on."""
         return self.entity_description.value_fn(self._client)
 
+    @override
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn the entity on."""
         await self.hass.async_add_executor_job(
@@ -82,6 +84,7 @@ class _Entity(SwitchEntity, Mcn02Entity):
         )
         await self.coordinator.async_refresh()
 
+    @override
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn the entity off."""
         await self.hass.async_add_executor_job(

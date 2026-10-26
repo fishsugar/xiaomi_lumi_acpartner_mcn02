@@ -1,7 +1,5 @@
 """Base entity for the integration."""
 
-from __future__ import annotations
-
 from abc import ABC
 
 import homeassistant.helpers.device_registry as dr

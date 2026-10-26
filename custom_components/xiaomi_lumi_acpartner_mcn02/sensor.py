@@ -1,10 +1,9 @@
 """sensor platform."""
 
-from __future__ import annotations
-
 from collections.abc import Callable
 from dataclasses import dataclass
 import logging
+from typing import override
 
 from miio.airconditioningcompanionMCN import AirConditioningCompanionStatus
 
@@ -60,6 +59,8 @@ async def async_setup_entry(
 class _Entity(SensorEntity, Mcn02Entity):
     """Representation of a sensor entity."""
 
+    _attr_has_entity_name = True
+
     entity_description: Mcn02SensorEntityDescription
     _status: AirConditioningCompanionStatus | None = None
     _value: StateType
@@ -77,6 +78,7 @@ class _Entity(SensorEntity, Mcn02Entity):
         self._attr_unique_id = f"{self._device_id}.{self.entity_description.key}"
 
     @property
+    @override
     def native_value(self) -> StateType:
         """Return the state of the sensor."""
         return self.entity_description.value_fn(self._client)

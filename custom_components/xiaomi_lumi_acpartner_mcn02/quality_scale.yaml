@@ -1,30 +1,46 @@
 rules:
   # Bronze
-  action-setup: check
-  appropriate-polling: check
-  brands: todo
-  common-modules: check
-  config-flow-test-coverage: todo
-  config-flow: check
-  dependency-transparency: check
-  docs-actions: check
-  docs-high-level-description: todo
-  docs-installation-instructions: todo
-  docs-removal-instructions: todo
-  entity-event-setup: check
-  entity-unique-id: check
-  has-entity-name: check
-  runtime-data: check
-  test-before-configure: check
-  test-before-setup: check
-  unique-config-entry: check
+  action-setup: done
+  appropriate-polling: done
+  brands:
+    status: exempt
+    comment: todo
+  common-modules: done
+  config-flow-test-coverage:
+    status: exempt
+    comment: todo
+  config-flow: done
+  dependency-transparency: done
+  docs-actions: done
+  docs-conditions:
+    status: exempt
+    comment: todo
+  docs-high-level-description:
+    status: exempt
+    comment: todo
+  docs-installation-instructions:
+    status: exempt
+    comment: todo
+  docs-removal-instructions:
+    status: exempt
+    comment: todo
+  docs-triggers:
+    status: exempt
+    comment: todo
+  entity-event-setup: done
+  entity-unique-id: done
+  has-entity-name: done
+  runtime-data: done
+  test-before-configure: done
+  test-before-setup: done
+  unique-config-entry: done
 
   # Silver
   action-exceptions: todo
-  config-entry-unloading: check
+  config-entry-unloading: done
   docs-configuration-parameters: todo
   docs-installation-parameters: todo
-  entity-unavailable: check
+  entity-unavailable: done
   integration-owner: todo
   log-when-unavailable: todo
   parallel-updates: todo

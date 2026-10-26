@@ -1,10 +1,9 @@
 """binary_sensor platform."""
 
-from __future__ import annotations
-
 from collections.abc import Callable
 from dataclasses import dataclass
 import logging
+from typing import override
 
 from homeassistant.components.binary_sensor import (
     BinarySensorEntity,
@@ -34,9 +33,9 @@ _SENSOR_DESCRIPTIONS: tuple[_EntityDescription, ...] = (
         translation_key="match_state",
         has_entity_name=True,
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda client: client.match_state == 1
-        if client.match_state is not None
-        else None,
+        value_fn=lambda client: (
+            client.match_state == 1 if client.match_state is not None else None
+        ),
     ),
 )
 
@@ -56,6 +55,8 @@ async def async_setup_entry(
 class _Entity(BinarySensorEntity, Mcn02Entity):
     """Representation of a binary_sensor entity."""
 
+    _attr_has_entity_name = True
+
     entity_description: _EntityDescription
 
     def __init__(
@@ -71,6 +72,7 @@ class _Entity(BinarySensorEntity, Mcn02Entity):
         self._attr_unique_id = f"{self._device_id}.{self.entity_description.key}"
 
     @property
+    @override
     def is_on(self) -> bool | None:
         """Return true if the binary sensor is on."""
         return self.entity_description.value_fn(self._client)
